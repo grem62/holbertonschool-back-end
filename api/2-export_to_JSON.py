@@ -2,24 +2,30 @@
 """
 Python script that, using this REST API, for a given employee ID, returns
 information about his/her TODO list progress.
+Extend the Python script to export data in the JSON format.
 """
-
+import json
 import requests
 from sys import argv
-import csv
-import json
 
-url_ap = "https://jsonplaceholder.typicode.com"
+API_URL = 'https://jsonplaceholder.typicode.com'
 
 
 def api():
-    # information user
-    user_response = requests.get(f"{url_ap}/users/{argv[1]}").json()
-    # liste des choses a faire pour le user
-    todo_response = requests.get(f"{url_ap}/todos?userId={argv[1]}").json()
+    """
+    Return API data
+    """
+    USER_ID = argv[1]
 
+    # User information
+    user_response = requests.get(f"{API_URL}/users/{USER_ID}").json()
+
+    # Todo list for the given user
+    todo_response = requests.get(f"{API_URL}/todos?userId={USER_ID}").json()
+
+    # Create a list of dictionary
     data = {
-        argv[1]: [
+        USER_ID: [
             {
                 "task": task['title'],
                 "completed": task['completed'],
@@ -30,7 +36,7 @@ def api():
     }
 
     # Write to JSON file
-    with open("{}.json".format(argv[1]), 'w') as jsonfile:
+    with open("{}.json".format(USER_ID), 'w') as jsonfile:
         jsonfile.write(json.dumps(data))
         jsonfile.close()
 
