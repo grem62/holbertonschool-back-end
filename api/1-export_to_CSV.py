@@ -11,9 +11,11 @@ url_ap = "https://jsonplaceholder.typicode.com"
 
 
 def api():
+    # information user
     user_response = requests.get(f"{url_ap}/users/{argv[1]}").json()
+    # liste des choses a faire pour le user
     todo_response = requests.get(f"{url_ap}/todos?userId={argv[1]}").json()
-
+    # écrire au format CSV
     with open(f"{argv[1]}.csv", 'w') as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
 
