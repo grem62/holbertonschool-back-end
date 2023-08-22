@@ -1,28 +1,34 @@
 #!/usr/bin/python3
-"""
-Python script that, using this REST API, for a given employee ID, returns
-information about his/her TODO list progress.
-"""
+"""Script that, using this REST API, for a given employee"""
 import requests
 from sys import argv
-import json
 
-url_ap = "https://jsonplaceholder.typicode.com"
+API_URL = 'https://jsonplaceholder.typicode.com'
 
+if __name__ == '__main__':
+    # Récupérer l'ID de l'employé depuis les args de ligne de commande
+    employee_id = argv[1]
 
-def api():
-    user_response = requests.get(f"{url_ap}/users/{argv[1]}").json()
-    todo_response = requests.get(f"{url_ap}/todos?userId={argv[1]}").json()
-    filtrer_task = [task for task in todo_response if task["completed"]]
+    # Obtenir les informations sur l'utilisateur depuis l'API
+    user_data = requests.get(f"{API_URL}/users/{employee_id}").json()
 
-    employee_name = user_response["name"]
-    num_completed_tasks = len(todo_response)
-    total_tasks = len(todo_response)
+    # Obtenir la liste des tâches à faire pour l'employé depuis l'API
+    todo_data = requests.get(f"{API_URL}/todos?userId={employee_id}").json()
+
+    # Filtrer les tâches terminées
+    completed_task_titles = [
+        task['title'] for task in todo_data
+        if task['completed']
+    ]
+
+    # Nom de l'employé, nombre de tâches terminées et nombre total de tâches
+    employee_name = user_data["name"]
+    num_completed_tasks = len(completed_task_titles)
+    total_tasks = len(todo_data)
+
+    # Afficher les informations
     print("Employee {} is done with tasks({}/{}):".format(
-      employee_name, num_completed_tasks, total_tasks))
-    for task in filtrer_task:
-        print(f"\t {task['title']}")
+        employee_name, num_completed_tasks, total_tasks))
 
-
-if __name__ == "__main__":
-    api()
+    for task_title in completed_task_titles:
+        print(f"\t {task_title}")
