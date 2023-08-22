@@ -1,45 +1,32 @@
 #!/usr/bin/python3
-"""
-Python script that, using this REST API, for a given employee ID, returns
-information about his/her TODO list progress.
-Extend the Python script to export data in the JSON format.
-"""
+"""Script to export data in the JSON format."""
 import json
 import requests
-from sys import argv
 
 API_URL = 'https://jsonplaceholder.typicode.com'
 
+if __name__ == '__main__':
+    # Récupérer les données de tous les utilisateurs depuis l'API
+    user_data = requests.get(f"{API_URL}/users").json()
 
-def api():
-    """
-    Return API data
-    """
-    USER_ID = argv[1]
+    # Créer un dictionnaire pour stocker les données de tous les employés
+    all_employee_data = {}
 
-    # User information
-    user_response = requests.get(f"{API_URL}/users/{USER_ID}").json()
+    # Parcourir chaque user pour obtenir ses tâches et les stocker dans le dict
+    for user in user_data:
+        user_id = str(user['id'])
+        tasks_data = requests.get(f"{API_URL}/todos?userId={user_id}").json()
 
-    # Todo list for the given user
-    todo_response = requests.get(f"{API_URL}/todos?userId={USER_ID}").json()
-
-    # Create a list of dictionary
-    data = {
-        USER_ID: [
-            {
+        # Préparer les données des tâches pour l'utilisateur actuel
+        tasks_info = [
+            {"username": user['username'],
                 "task": task['title'],
-                "completed": task['completed'],
-                "username": user_response['username']
-            }
-            for task in todo_response
+                "completed": task['completed']}
+            for task in tasks_data
         ]
-    }
 
-    # Write to JSON file
-    with open("{}.json".format(USER_ID), 'w') as jsonfile:
-        jsonfile.write(json.dumps(data))
-        jsonfile.close()
+        all_employee_data[user_id] = tasks_info
 
-
-if __name__ == "__main__":
-    api()
+    # Écrire les données dans un fichier JSON
+    with open("todo_all_employees.json", mode='w') as json_file:
+        json.dump(all_employee_data, json_file)
