@@ -1,32 +1,31 @@
 #!/usr/bin/python3
-"""
-Python script that, using this REST API, for a given employee ID, returns
-information about his/her TODO list progress.
-"""
-
+"""Script to export data in the CSV format"""
 import requests
-from sys import argv
 import csv
-url_ap = "https://jsonplaceholder.typicode.com"
+from sys import argv
 
+API_URL = 'https://jsonplaceholder.typicode.com'
 
-def api():
-    # information user
-    user_response = requests.get(f"{url_ap}/users/{argv[1]}").json()
-    # liste des choses a faire pour le user
-    todo_response = requests.get(f"{url_ap}/todos?userId={argv[1]}").json()
-    # écrire au format CSV
-    with open(f"{argv[1]}.csv", 'w') as csvfile:
-        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+if __name__ == '__main__':
+    # Récupérer l'ID de l'employé depuis les args de ligne de commande
+    employee_id = argv[1]
 
-        for task in todo_response:
+    # Obtenir les informations sur l'utilisateur depuis l'API
+    user_data = requests.get(f"{API_URL}/users/{employee_id}").json()
+
+    # Obtenir la liste des tâches à faire pour l'employé depuis l'API
+    todo_data = requests.get(f"{API_URL}/todos?userId={employee_id}").json()
+
+    # Write to CSV file
+    with open(f"{employee_id}.csv", mode='w') as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+
+        for task in todo_data:
             writer.writerow([
-                user_response['id'],
-                user_response['username'],
+                user_data['id'],
+                user_data['username'],
                 task['completed'],
                 task['title']
             ])
 
-
-if __name__ == "__main__":
-    api()
+    print(f"Data has been exported to {employee_id}.csv")
