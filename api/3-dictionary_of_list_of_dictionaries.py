@@ -1,22 +1,35 @@
 #!/usr/bin/python3
 """
-description of script
+Python script that, using a REST API, for a given employee ID.
 """
+
 import json
 import requests
 
+
 if __name__ == "__main__":
+    base_url = "https://jsonplaceholder.typicode.com"
+    user_id = f"{base_url}/users"
+    todo = f"{base_url}/todos"
 
-    URL = "https://jsonplaceholder.typicode.com"
+    response_user = requests.get(user_id)
+    response_todo = requests.get(todo)
 
-    users = requests.get(f'{URL}/users').json()
-    dict_user = {}
-    for user in users:
-        tasks = requests.get(f'{URL}/users/{user["id"]}/todos').json()
-        dict_user[user['id']] = []
-        for task in tasks:
-            dict_task = {"task": task["title"], "completed": task["completed"],
-                         "username": user["username"]}
-            dict_user[user["id"]].append(dict_task)
-    with open("todo_all_employees.json", "w") as file:
-        json.dump(dict_user, file)
+    user_data = response_user.json()
+    todo_data = response_todo.json()
+
+    data_employee = {}
+
+    for users in user_data:
+        user_id = users['id']
+        username = users['username']
+
+        tasks = [{"username": username,
+                  "task": task["title"],
+                  "completed": task["completed"]}
+                 for task in todo_data if task["userId"] == user_id]
+
+        data_employee[user_id] = tasks
+
+    with open("todo_all_employees.json", "w") as jsonfile:
+        json.dump(data_employee, jsonfile, indent=4)
