@@ -1,35 +1,37 @@
 #!/usr/bin/python3
 """
-Python script that, using a REST API, for a given employee ID.
+Python script that retrieves tasks for each employee from a REST API.
 """
 
 import json
 import requests
 
-
-if __name__ == "__main__":
+def main():
     base_url = "https://jsonplaceholder.typicode.com"
-    user_id = f"{base_url}/users"
-    todo = f"{base_url}/todos"
+    user_endpoint = f"{base_url}/users"
+    todo_endpoint = f"{base_url}/todos"
 
-    response_user = requests.get(user_id)
-    response_todo = requests.get(todo)
+    response_users = requests.get(user_endpoint)
+    response_todos = requests.get(todo_endpoint)
 
-    user_data = response_user.json()
-    todo_data = response_todo.json()
+    users_data = response_users.json()
+    todos_data = response_todos.json()
 
-    data_employee = {}
+    employee_tasks = {}
 
-    for users in user_data:
-        user_id = users['id']
-        username = users['username']
+    for user in users_data:
+        user_id = user['id']
+        username = user['username']
 
         tasks = [{"username": username,
                   "task": task["title"],
                   "completed": task["completed"]}
-                 for task in todo_data if task["userId"] == user_id]
+                 for task in todos_data if task["userId"] == user_id]
 
-        data_employee[user_id] = tasks
+        employee_tasks[user_id] = tasks
 
     with open("todo_all_employees.json", "w") as jsonfile:
-        json.dump(data_employee, jsonfile, indent=4)
+        json.dump(employee_tasks, jsonfile, indent=4)
+
+if __name__ == "__main__":
+    main()
