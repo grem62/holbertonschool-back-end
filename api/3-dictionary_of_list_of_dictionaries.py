@@ -1,37 +1,40 @@
 #!/usr/bin/python3
 """
-Python script that retrieves tasks for each employee from a REST API.
+script that, using this REST API, for a given employee ID,
+returns information about his/her TODO list progress.
 """
 
 import json
 import requests
 
-def main():
+
+def all_employed_todo():
+    """Displays all tasks for each employed"""
     base_url = "https://jsonplaceholder.typicode.com"
-    user_endpoint = f"{base_url}/users"
-    todo_endpoint = f"{base_url}/todos"
+    user_url = f"{base_url}/users"
+    todo_url = f"{base_url}/todos"
 
-    response_users = requests.get(user_endpoint)
-    response_todos = requests.get(todo_endpoint)
+    user_response = requests.get(user_url)
+    todo_response = requests.get(todo_url)
 
-    users_data = response_users.json()
-    todos_data = response_todos.json()
+    user_data = user_response.json()
+    todo_data = todo_response.json()
 
-    employee_tasks = {}
+    employee_data = {}
 
-    for user in users_data:
-        user_id = user['id']
-        username = user['username']
+    for user in user_data:
+        employee_id = user['id']
+        employee_username = user['username']
 
-        tasks = [{"username": username,
-                  "task": task["title"],
-                  "completed": task["completed"]}
-                 for task in todos_data if task["userId"] == user_id]
+        tasks = [{"username": employee_username,
+                  "task": task['title'],
+                  "completed": task['completed']}
+                 for task in todo_data if task['userId'] == employee_id]
+        employee_data[employee_id] = tasks
 
-        employee_tasks[user_id] = tasks
+    with open('todo_all_employees.json', 'w') as json_file:
+        json.dump(employee_data, json_file, indent=4)
 
-    with open("todo_all_employees.json", "w") as jsonfile:
-        json.dump(employee_tasks, jsonfile, indent=4)
 
 if __name__ == "__main__":
-    main()
+    all_employed_todo()
